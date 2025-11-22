@@ -1,188 +1,193 @@
 import csv
 import sys
 
-# --- Data Structure to Hold All Assignments ---
-assignments = []
-total_fa_weight = 0
-total_sa_weight = 0
+# ==============================
+#   Global Containers
+# ==============================
+records = []              # Stores all task entries
+fa_total_weight = 0       # Tracks total FA weighting
+sa_total_weight = 0       # Tracks total SA weighting
 
-# --- Helper Functions for Validation ---
-def validate_grade(grade_input):
-    """Validates grade is a number between 0 and 100."""
+
+# ==============================
+#   Validation Utilities
+# ==============================
+def check_score(value):
+    """Ensure the score is a numeric value between 0 and 100."""
     try:
-        grade = float(grade_input)
-        if 0 <= grade <= 100:
-            return grade
-        else:
-            print("Error: Grade must be between 0 and 100.") #[cite: 40]
-            return None
+        score = float(value)
+        if 0 <= score <= 100:
+            return score
+        print("Invalid: Score must be 0–100.")
+        return None
     except ValueError:
-        print("Error: Grade must be a number.") #[cite: 43]
+        print("Invalid: Score should be a numeric value.")
         return None
 
-def validate_category(category_input):
-    """Validates category is 'FA' or 'SA' and returns uppercase."""
-    category = category_input.strip().upper()
-    if category in ("FA", "SA"):
-        return category
-    else:
-        print("Error: Category must be 'FA' or 'SA'.") #[cite: 41]
-        return None
 
-def validate_weight(weight_input):
-    """Validates weight is a positive number."""
+def check_type(raw_type):
+    """Confirm the assessment type is FA or SA."""
+    mode = raw_type.strip().upper()
+    if mode in ("FA", "SA"):
+        return mode
+    print("Invalid: Type must be FA or SA only.")
+    return None
+
+
+def check_weight(amount):
+    """Ensure the weighting is positive."""
     try:
-        weight = float(weight_input)
-        if weight > 0:
-            return weight
-        else:
-            print("Error: Weight must be a positive number.") #[cite: 42]
-            return None
+        w = float(amount)
+        if w > 0:
+            return w
+        print("Invalid: Weight must be greater than zero.")
+        return None
     except ValueError:
-        print("Error: Weight must be a number.") #[cite: 43]
+        print("Invalid: Weight must be a number.")
         return None
 
-# --- Main Input Loop ---
-def collect_input():
-    global total_fa_weight, total_sa_weight
-    
+
+# ==============================
+#   Data Collection Loop
+# ==============================
+def gather_entries():
+    global fa_total_weight, sa_total_weight
+
     while True:
-        print("\n--- New Assignment ---")
-        
-        # 1. Assignment Name
-        name = input("Enter Assignment Name: ").strip() #[cite: 33]
+        print("\n--- Add New Task ---")
 
-        # 2. Category Validation
+        # Task label
+        title = input("Task Name: ").strip()
+
+        # Task category
         category = None
         while category is None:
-            category_input = input("Enter Category (FA/SA): ") #[cite: 34]
-            category = validate_category(category_input)
+            category = check_type(input("Type (FA/SA): "))
 
-        # 3. Grade Validation
-        grade = None
-        while grade is None:
-            grade_input = input("Enter Grade Obtained (0-100): ") #[cite: 35]
-            grade = validate_grade(grade_input)
-        
-        # 4. Weight Validation
+        # Score
+        score = None
+        while score is None:
+            score = check_score(input("Score (0–100): "))
+
+        # Weight
         weight = None
         while weight is None:
-            weight_input = input("Enter Weight (e.g., 30): ") #[cite: 36]
-            weight = validate_weight(weight_input)
+            weight = check_weight(input("Weight: "))
 
-        # Add assignment to list
-        assignments.append({
-            'Assignment': name,
-            'Category': category,
-            'Grade': grade,
-            'Weight': weight,
-            # Calculated Field (Grade/100) * Weight [cite: 49]
-            'Weighted_Grade': (grade / 100) * weight
+        # Store task info
+        records.append({
+            "Task": title,
+            "Type": category,
+            "Score": score,
+            "Weight": weight,
+            "WeightedScore": (score / 100) * weight
         })
 
-        # Update total weights
+        # Update weight category totals
         if category == "FA":
-            total_fa_weight += weight
+            fa_total_weight += weight
         else:
-            total_sa_weight += weight
-            
-        # Check if user wants to stop
-        stop = input("Add another assignment? (y/n): ").strip().lower() #[cite: 37]
-        if stop == 'n':
+            sa_total_weight += weight
+
+        # Continue?
+        cont = input("Add another? (y/n): ").lower().strip()
+        if cont == 'n':
             break
 
-# --- Calculation Logic ---
-def calculate_results():
-    total_weighted_fa = 0.0
-    total_weighted_sa = 0.0
-    
-    for item in assignments:
-        if item['Category'] == 'FA':
-            total_weighted_fa += item['Weighted_Grade'] #[cite: 52]
+
+# ==============================
+#   Result Processing
+# ==============================
+def compute_results():
+    fa_points = 0
+    sa_points = 0
+
+    for r in records:
+        if r["Type"] == "FA":
+            fa_points += r["WeightedScore"]
         else:
-            total_weighted_sa += item['Weighted_Grade'] #[cite: 52]
+            sa_points += r["WeightedScore"]
 
-    # Calculate Totals
-    total_grade = total_weighted_fa + total_weighted_sa #[cite: 53]
-    gpa = (total_grade / 100) * 5.0 #[cite: 54]
+    full_score = fa_points + sa_points
+    gpa = (full_score / 100) * 5
 
-    # Pass/Fail Logic [cite: 55]
-    status = "PASS"
-    resubmission = "None"
-    
-    # Check if student scored at or above 50% in BOTH categories [cite: 55]
-    if total_fa_weight > 0 and (total_weighted_fa / total_fa_weight) < 0.5:
-        status = "FAIL"
-        resubmission = "Formative"
-    elif total_sa_weight > 0 and (total_weighted_sa / total_sa_weight) < 0.5:
-        status = "FAIL"
-        resubmission = "Summative"
-    
-    # Store results for summary
-    results = {
-        'total_fa': total_weighted_fa,
-        'weight_fa': total_fa_weight,
-        'total_sa': total_weighted_sa,
-        'weight_sa': total_sa_weight,
-        'total_grade': total_grade,
-        'gpa': gpa,
-        'status': status,
-        'resubmission': resubmission
+    verdict = "PASS"
+    redo = "None"
+
+    # Failure logic (below 50% in FA or SA)
+    if fa_total_weight > 0 and (fa_points / fa_total_weight) < 0.5:
+        verdict = "FAIL"
+        redo = "Formative"
+    elif sa_total_weight > 0 and (sa_points / sa_total_weight) < 0.5:
+        verdict = "FAIL"
+        redo = "Summative"
+
+    return {
+        "fa_points": fa_points,
+        "fa_weight": fa_total_weight,
+        "sa_points": sa_points,
+        "sa_weight": sa_total_weight,
+        "final_score": full_score,
+        "gpa": gpa,
+        "verdict": verdict,
+        "redo": redo
     }
-    return results
 
-# --- Output 1: Console Summary ---
-def print_summary(results):
-    print("\n" + "="*40)
-    print(" " * 15 + "RESULTS") #[cite: 59]
-    print("="*40)
-    
-    print(f"Total Formative: {results['total_fa']:.2f}/{results['weight_fa']:.0f}") #[cite: 60]
-    print(f"Total Summative: {results['total_sa']:.2f}/{results['weight_sa']:.0f}") #[cite: 61]
-    
-    print("-" * 40)
-    print(f"Total Grade:     {results['total_grade']:.2f}/100") #[cite: 62, 66]
-    print(f"GPA:             {results['gpa']:.4f}") #[cite: 63, 67]
-    print(f"Status:          {results['status']}") #[cite: 64, 68]
-    print(f"Resubmission:    {results['resubmission']}") #[cite: 65, 69]
-    print("="*40 + "\n")
 
-# --- Output 2: CSV File Generation ---
-def generate_csv_file():
-    filename = "grades.csv" #[cite: 71]
-    
-    # Header row defined by requirements [cite: 73]
-    fieldnames = ['Assignment', 'Category', 'Grade', 'Weight']
-    
+# ==============================
+#   Display Report
+# ==============================
+def display_report(info):
+    print("\n" + "=" * 45)
+    print(" " * 16 + "FINAL REPORT")
+    print("=" * 45)
+
+    print(f"FA Total: {info['fa_points']:.2f}/{info['fa_weight']:.0f}")
+    print(f"SA Total: {info['sa_points']:.2f}/{info['sa_weight']:.0f}")
+
+    print("-" * 45)
+    print(f"Overall Score: {info['final_score']:.2f}/100")
+    print(f"GPA: {info['gpa']:.4f}")
+    print(f"Status: {info['verdict']}")
+    print(f"Resubmission Required: {info['redo']}")
+    print("=" * 45 + "\n")
+
+
+# ==============================
+#   CSV Export
+# ==============================
+def save_as_csv():
+    filename = "output_grades.csv"
+    headers = ["Task", "Type", "Score", "Weight"]
+
     try:
-        with open(filename, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            
-            # Write the header [cite: 73]
+        with open(filename, "w", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=headers)
             writer.writeheader()
-            
-            # Write the data [cite: 74]
-            # Use a list comprehension to write only the required fields
-            data_to_write = [{k: item[k] for k in fieldnames} for item in assignments]
-            writer.writerows(data_to_write)
-            
-        print(f"✅ Success! Assignment data exported to {filename}.")
-        
-    except Exception as e:
-        print(f"Error writing CSV file: {e}")
+
+            # Save only visible fields
+            cleaned = [{h: rec[h] for h in headers} for rec in records]
+            writer.writerows(cleaned)
+
+        print(f"✔ Data successfully saved to {filename}")
+
+    except Exception as err:
+        print(f"CSV Write Error: {err}")
         sys.exit(1)
 
 
-# --- Main Execution Block ---
+# ==============================
+#   Program Entry Point
+# ==============================
 if __name__ == "__main__":
-    print("Welcome to the Python Grade Generator!")
-    
-    collect_input()
-    
-    if not assignments:
-        print("No assignments entered. Exiting.")
+    print("=== Grade Processing Program ===")
+
+    gather_entries()
+
+    if not records:
+        print("No tasks provided. Program stopped.")
         sys.exit(0)
 
-    results = calculate_results()
-    print_summary(results)
-    generate_csv_file()
+    summary = compute_results()
+    display_report(summary)
+    save_as_csv()

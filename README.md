@@ -1,86 +1,82 @@
+# ⭐ Lab 1: Student Grade Processing System
 
+This lab exercise is divided into **two standalone components**:
 
-# Lab 1: Grade Generator Calculator
+1. A **Python program** that gathers assessment information, performs weighted grade calculations, and saves the results.
+2. A **Bash automation script** that organizes the exported CSV files by archiving and logging them.
 
-This project consists of **two parts**: a Python application (`grade-generator.py`) for calculating a student’s final grade and exporting the data, and a Bash shell script (`organizer.sh`) for organizing and archiving the resulting CSV files.
-
----
-
-## Project Overview
-
-The primary goal of this lab is to demonstrate proficiency in:
-
-* **Python**: Interactive input, validation, conditional logic, complex calculations, and file I/O (CSV).
-* **Bash Scripting**: Directory management, file searching, timestamp generation, file renaming, and logging.
+Both parts work together to demonstrate practical skills in scripting, automation, and data handling.
 
 ---
 
-## Part 1: Python Grade Generator (`grade-generator.py`)
+## 📘 Part 1 — Python Grade Calculator (`grade-generator.py`)
 
-This interactive Python script collects assignment details, calculates a weighted final grade, determines Pass/Fail status, prints a summary to the console, and exports the data to a CSV file.
+This Python application walks the user through entering assessments, validates each input, computes final scores, prints a performance summary, and writes the data to a CSV file.
 
-### ⚙️ Features
+### 🔧 Main Capabilities
 
-| Feature               | Description                                                                                                                             |
-| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| **Interactive Input** | Continuously prompts the user for Assignment Name, Category (FA/SA), Grade Obtained (0-100), and Weight until the user chooses to stop. |
-| **Input Validation**  | Ensures the Grade is between 0–100, Category is ‘FA’ or ‘SA’ (uppercase), and Weight is positive.                                       |
-| **Calculation Logic** | Calculates Weighted Grade for each assignment: `(Grade / 100) * Weight`. Sums these to get Total Formative and Total Summative scores.  |
-| **Final Metrics**     | Calculates the Total Grade (`Total Formative + Total Summative`) and GPA (`(Total Grade / 100) * 5.0`).                                 |
-| **Pass/Fail Logic**   | A student passes only if they score at or above 50% in both Formative and Summative categories.                                         |
-| **Console Output**    | Displays a clear summary of all totals, GPA, and final Status.                                                                          |
-| **CSV Export**        | Exports all user-entered assignment data to `grades.csv` with headers: Assignment, Category, Grade, Weight.                             |
+| Feature                  | Description                                                                                  |
+| ------------------------ | -------------------------------------------------------------------------------------------- |
+| **User Prompts**         | Requests assignment name, assessment type (FA/SA), score (0–100), and weighting.             |
+| **Robust Validation**    | Verifies score limits, ensures proper category selection, and checks for positive weighting. |
+| **Weighted Computation** | Calculates `(score / 100) × weight` for every assessment.                                    |
+| **Category Totals**      | Separately accumulates Formative (FA) and Summative (SA) weighted points.                    |
+| **Overall Results**      | Produces a Total Score and converts it to a GPA on a 5.0 scale.                              |
+| **Pass/Fail Decision**   | Passing requires a minimum of 50% in both FA and SA sections.                                |
+| **Formatted Summary**    | Displays FA total, SA total, GPA, final grade, and resubmission requirement (if any).        |
+| **CSV Output**           | Stores assignment data into `grades.csv` for later processing.                               |
 
-### 🚀 How to Run
+### ▶️ Running the Python Script
 
-1. Ensure Python is installed.
-2. Run the script from your terminal:
+1. Make sure Python 3 is available on your system.
+2. Execute the program:
 
 ```bash
 python3 grade-generator.py
 ```
 
-3. Follow the on-screen prompts to enter assignment details.
+3. Follow the prompts to fill in assignment information.
 
 ---
 
-## Part 2: Shell Script Organizer (`organizer.sh`)
+## 📘 Part 2 — CSV Archiver Script (`organizer.sh`)
 
-This Bash script organizes and archives any CSV files generated in the current directory.
+This shell script scans the current folder for CSV files and automatically archives them with timestamped names while maintaining a log of all processing activity.
 
-### ⚙️ Features
+### 🔧 Main Capabilities
 
-| Step                | Description                                                                                                                   |
-| ------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **Setup**           | Checks for the existence of an `archive/` directory and creates it if it does not exist.                                      |
-| **File Processing** | Finds all CSV files (`*.csv`) in the current directory.                                                                       |
-| **Renaming**        | Generates a unique timestamp and inserts it into each filename (e.g., `grades.csv` → `grades-YYYYMMDD-HHMMSS.csv`).           |
-| **Logging**         | Appends a detailed log of the archival action, including the file content, to `organizer.log`. Logs accumulate with each run. |
-| **Archiving**       | Moves the renamed CSV file to the `archive/` directory.                                                                       |
+| Action                   | Description                                                                             |
+| ------------------------ | --------------------------------------------------------------------------------------- |
+| **Directory Setup**      | Ensures an archive folder is present; creates one if needed.                            |
+| **CSV Discovery**        | Locates all `.csv` files within the working directory.                                  |
+| **Timestamped Renaming** | Inserts a date/time label into each filename to avoid collisions and track versions.    |
+| **Activity Logging**     | Writes an entry to `organizer.log` containing the filename, new name, and its contents. |
+| **Archival**             | Moves the renamed CSV file into the archive folder.                                     |
 
-### 🚀 How to Run
+### ▶️ Running the Shell Script
 
-1. Make the script executable:
+1. Give the script execution permission:
 
 ```bash
 chmod +x organizer.sh
 ```
 
-2. Run the script (after generating CSV files with Python):
+2. Run it after generating CSV files:
 
 ```bash
 ./organizer.sh
 ```
 
-3. Check the `archive/` directory and `organizer.log` to view results.
+3. Check the `stored_csv/` or `archive/` directory (depending on your version) for archived files and the log for activity history.
 
 ---
 
-## 📦 Submission Requirements
+## 📂 Submission Checklist
 
-Ensure your submission includes:
+Include these files when submitting your work:
 
 * `grade-generator.py`
 * `organizer.sh`
 * `README.md`
+
 
