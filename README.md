@@ -1,4 +1,4 @@
-# ⭐ Lab 1: Student Grade Processing System
+# ⭐ Lab 1: Grade Generator Calculator
 
 This lab exercise is divided into **two standalone components**:
 
